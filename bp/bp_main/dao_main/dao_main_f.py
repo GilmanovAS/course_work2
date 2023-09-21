@@ -4,9 +4,6 @@
 # поста нет комментов.
 #
 # search_for_posts(query) - возвращает список постов по ключевому слову
-#
-# get_post_by_pk(pk)  возвращает один пост по его идентификатору.
-
 import json
 
 
@@ -28,3 +25,6 @@ class DaoMain:
             if user_name.lower() == post['poster_name']:
                 post_return.append(post)
         return post_return
+
+    def get_post_by_pk(self, pk):
+        """ get_post_by_pk(pk)  возвращает один пост по его идентификатору."""

@@ -10,3 +10,8 @@ blueprint_main = Blueprint('blueprint_main', __name__, template_folder='template
 def main_page():
     posts = DaoMain(PATH_JSON_POSTS)
     return render_template('index.html', posts=posts.get_posts_all())
+
+
+@blueprint_main.route('/posts/<postid>')
+def post_page(postid):
+    return render_template('post.html', )
