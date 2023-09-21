@@ -1,13 +1,10 @@
-from flask import Flask, request, render_template
+from flask import Flask
+from bp.bp_main.main_view import blueprint_main
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
-app.config.from_pyfile('config.py')
+app = Flask(__name__)
+app.config.from_pyfile('configs/config.py')
 
-
-@app.route('/')
-def root_page():
-    return render_template('index.html')
-
+app.register_blueprint(blueprint_main)
 
 if __name__ == '__main__':
     app.run()
