@@ -14,7 +14,7 @@ class DaoPosts:
         """return all posts short"""
         post_all = self.get_posts_all()
         for post in post_all:
-            post['content'] = "00000000000000000000 000000 5555555555555500000000"
+            post['content'] = post['content'][0:100]
         return post_all
 
     def get_posts_by_user(self, user_name: str) -> list:

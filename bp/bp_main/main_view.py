@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 
 from bp.bp_main.dao_main.dao_main_f import DaoPosts, DaoComments
 from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS
@@ -31,5 +31,13 @@ def posts_by_user_page(user_name):
 @blueprint_main.route('/search/<search_str>')
 def search_page(search_str):
     posts_o = DaoPosts(PATH_JSON_POSTS)
+    posts_l, count = posts_o.search_for_posts(search_str)
+    return render_template('search.html', posts=posts_l, count=count)
+
+
+@blueprint_main.route('/search/', methods=['GET'])
+def search_page_request():
+    posts_o = DaoPosts(PATH_JSON_POSTS)
+    search_str = request.values.get('search')
     posts_l, count = posts_o.search_for_posts(search_str)
     return render_template('search.html', posts=posts_l, count=count)
