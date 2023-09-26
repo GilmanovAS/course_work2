@@ -9,12 +9,21 @@ blueprint_main = Blueprint('blueprint_main', __name__, template_folder='template
 
 
 def decor_add_a_tag(func):
-    '<а href="/tag/' + func() + '">#' + func() + '</a>'
+    def wrapped(st):
+        return f'<а href="/tag/{st}">#{st}</a>'
+
+    return wrapped
 
 
 @decor_add_a_tag
 def add_a_tag(tag_name):
     return tag_name
+
+
+def change_tag_content(all_posts):
+    for post1 in all_posts:
+        print(post1.get('content'))
+
 
 
 @blueprint_main.route('/', methods=['GET'])
@@ -30,7 +39,11 @@ def post_page(post_id):
     post = DaoPosts(PATH_JSON_POSTS)
     comments_o = DaoComments(PATH_JSON_COMMENTS)
     comments_l, comments_count = comments_o.get_comments_by_post_id(post_id)
-    return render_template('post.html', post=post.get_post_by_pk(post_id),
+    list_all = []
+    list_all = post.get_post_by_pk(post_id)
+
+    change_tag_content(list_all)
+    return render_template('post.html', post=list_all,
                            comments=comments_l, comments_count=comments_count)
 
 
