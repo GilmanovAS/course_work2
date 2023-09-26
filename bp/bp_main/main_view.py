@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, render_template, request
 
 from bp.bp_main.dao_main.dao_main_f import DaoPosts, DaoComments
@@ -6,14 +8,25 @@ from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS
 blueprint_main = Blueprint('blueprint_main', __name__, template_folder='templates_main')
 
 
+def decor_add_a_tag(func):
+    '<а href="/tag/' + func() + '">#' + func() + '</a>'
+
+
+@decor_add_a_tag
+def add_a_tag(tag_name):
+    return tag_name
+
+
 @blueprint_main.route('/', methods=['GET'])
 def main_page():
     posts = DaoPosts(PATH_JSON_POSTS)
+    logging.info("index.html")
     return render_template('index.html', posts=posts.get_posts_all_short())
 
 
 @blueprint_main.route('/posts/<int:post_id>')
 def post_page(post_id):
+    logging.info(f"/posts/{post_id}")
     post = DaoPosts(PATH_JSON_POSTS)
     comments_o = DaoComments(PATH_JSON_COMMENTS)
     comments_l, comments_count = comments_o.get_comments_by_post_id(post_id)
@@ -23,6 +36,7 @@ def post_page(post_id):
 
 @blueprint_main.route('/user-feed/<user_name>')
 def posts_by_user_page(user_name):
+    logging.info(f"/user-feed/{user_name}")
     posts_o = DaoPosts(PATH_JSON_POSTS)
     posts_l = posts_o.get_posts_by_user(user_name)
     return render_template('user-feed.html', posts=posts_l)
@@ -30,6 +44,7 @@ def posts_by_user_page(user_name):
 
 @blueprint_main.route('/search/<search_str>')
 def search_page(search_str):
+    logging.info(f"/search/{search_str}")
     posts_o = DaoPosts(PATH_JSON_POSTS)
     posts_l, count = posts_o.search_for_posts(search_str)
     return render_template('search.html', posts=posts_l, count=count)
@@ -39,5 +54,6 @@ def search_page(search_str):
 def search_page_request():
     posts_o = DaoPosts(PATH_JSON_POSTS)
     search_str = request.values.get('search')
+    logging.info(f"/search/?search={search_str}")
     posts_l, count = posts_o.search_for_posts(search_str)
     return render_template('search.html', posts=posts_l, count=count)
