@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SKYPROGRAM</title>
   <link href="/static/css/styles.min.css" rel="stylesheet">
+   <script>function process(index) {
+      window.open(`/bookmarks/add/${index}`,'_self')
+      }
+  </script>
 </head>
 
 <body>
@@ -58,7 +62,7 @@
         </div>
         <div class="item__post-bottom">
           <a href="/posts/{{post.pk}}" class="item__btn-more">Подробнее</a>
-          <button type="button" class="item__bookmark-btn">
+          <button type="button" class="item__bookmark-btn" onclick="process({{post.pk}});">
             <img src="/static/img/bookmark.png" alt="" class="item__bookmark-icon" width="24">
           </button>
         </div>

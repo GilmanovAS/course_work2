@@ -2,8 +2,8 @@ import logging
 
 from flask import Blueprint, render_template, request, redirect
 
-from bp.bp_main.dao_main.dao_main_f import DaoPosts, DaoComments
-from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS, LENGTH_CONTENT
+from bp.bp_main.dao_main.dao_main_f import DaoPosts, DaoComments, DaoBookmarks
+from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS, PATH_JSON_BOOKMARKS, LENGTH_CONTENT
 
 blueprint_main = Blueprint('blueprint_main', __name__, template_folder='templates_main')
 
@@ -24,11 +24,15 @@ def change_tag_content(post):
 @blueprint_main.route('/', methods=['GET'])
 def main_page():
     posts_all = DaoPosts(PATH_JSON_POSTS)
+    bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
+    bookmarks = bookmarks.get_bookmarks_all()
     logging.info("index.html")
     posts_all = posts_all.get_posts_all()
+    print(bookmarks)
     for post in posts_all:
         post['content'] = post['content'][0:LENGTH_CONTENT]
-    return render_template('index.html', posts=posts_all)
+        # post['bookmarks'] = bookmarks['pk']
+    return render_template('index.html', posts=posts_all )
 
 
 @blueprint_main.route('/posts/<int:post_id>')
@@ -85,6 +89,7 @@ def bookmarks_page():
 
 @blueprint_main.route('/bookmarks/add/<post_id>')
 def bookmarks_add_page(post_id):
+    logging.info(f'bookmarks_add_page {post_id}')
     return redirect('/', code=302)
 
 

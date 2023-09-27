@@ -60,3 +60,22 @@ class DaoComments:
                 return_comments.append(comment)
                 count += 1
         return return_comments, count
+
+
+class DaoBookmarks:
+    def __init__(self, path):
+        self.path = path
+
+    def get_bookmarks_all(self):
+        """return all comments"""
+        with open(self.path, 'r', encoding='UTF-8') as fp:
+            return json.load(fp)
+
+    def get_bookmarks_by_post_id(self, post_id):
+        # get_comments_by„post_id(post_id) - возвращает комментарии определенного поста.
+        # Функция должна вызывать ошибку ValueError если такого поста нет и пустой список, если у
+        # поста нет комментов.
+        bookmarks_all = self.get_bookmarks_all()
+        for bookmark in bookmarks_all:
+            if post_id == bookmark['post_id']:
+                return bookmark
