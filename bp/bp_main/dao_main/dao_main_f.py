@@ -10,12 +10,12 @@ class DaoPosts:
         with open(self.path, 'r', encoding='UTF-8') as fp:
             return json.load(fp)
 
-    def get_posts_all_short(self):
-        """return all posts short"""
-        post_all = self.get_posts_all()
-        for post in post_all:
-            post['content'] = post['content'][0:100]
-        return post_all
+    # def get_posts_all_short(self):
+    #     """return all posts short"""
+    #     post_all = self.get_posts_all()
+    #     for post in post_all:
+    #         post['content'] = post['content'][0:100]
+    #     return post_all
 
     def get_posts_by_user(self, user_name: str) -> list:
         """It's returns posts by a specific user. Feature must return valueError if such a user does not exist and

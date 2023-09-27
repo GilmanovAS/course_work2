@@ -23,9 +23,12 @@ def change_tag_content(post):
 
 @blueprint_main.route('/', methods=['GET'])
 def main_page():
-    posts = DaoPosts(PATH_JSON_POSTS)
+    posts_all = DaoPosts(PATH_JSON_POSTS)
     logging.info("index.html")
-    return render_template('index.html', posts=posts.get_posts_all_short())
+    posts_all = posts_all.get_posts_all()
+    for post in posts_all:
+        post['content'] = post['content'][0:69]
+    return render_template('index.html', posts=posts_all)
 
 
 @blueprint_main.route('/posts/<int:post_id>')
@@ -64,6 +67,12 @@ def search_page_request():
     posts_l, count = posts_o.search_for_posts(search_str)
     return render_template('search.html', posts=posts_l, count=count)
 
-@blueprint_main.route('/tag/<tagname>')
-def tag_page(tagname):
-    return render_template('tag.html')
+
+@blueprint_main.route('/tag/<tag_name>')
+def tag_page(tag_name):
+    logging.info(f"/tag/{tag_name}")
+    posts_o = DaoPosts(PATH_JSON_POSTS)
+    posts_l, count = posts_o.search_for_posts(f'#{tag_name}')
+    for post in posts_l:
+        post['content'] = post['content'][0:69]
+    return render_template('tag.html', posts=posts_l, tag_name=tag_name)
