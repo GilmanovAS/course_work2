@@ -1,9 +1,9 @@
 import logging
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect
 
 from bp.bp_main.dao_main.dao_main_f import DaoPosts, DaoComments
-from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS
+from configs.config import PATH_JSON_POSTS, PATH_JSON_COMMENTS, LENGTH_CONTENT
 
 blueprint_main = Blueprint('blueprint_main', __name__, template_folder='templates_main')
 
@@ -27,7 +27,7 @@ def main_page():
     logging.info("index.html")
     posts_all = posts_all.get_posts_all()
     for post in posts_all:
-        post['content'] = post['content'][0:69]
+        post['content'] = post['content'][0:LENGTH_CONTENT]
     return render_template('index.html', posts=posts_all)
 
 
@@ -74,5 +74,20 @@ def tag_page(tag_name):
     posts_o = DaoPosts(PATH_JSON_POSTS)
     posts_l, count = posts_o.search_for_posts(f'#{tag_name}')
     for post in posts_l:
-        post['content'] = post['content'][0:69]
+        post['content'] = post['content'][0:LENGTH_CONTENT]
     return render_template('tag.html', posts=posts_l, tag_name=tag_name)
+
+
+@blueprint_main.route('/bookmarks/')
+def bookmarks_page():
+    return render_template('bookmarks.html')
+
+
+@blueprint_main.route('/bookmarks/add/<post_id>')
+def bookmarks_add_page(post_id):
+    return redirect('/', code=302)
+
+
+@blueprint_main.route('/bookmarks/delete/<post_id>')
+def bookmarks_delete_page(post_id):
+    return redirect('/', code=302)

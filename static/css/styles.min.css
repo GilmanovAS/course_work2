@@ -389,7 +389,16 @@ textarea {
 
 .item__counter-icon {
 	width: 26px;
-	padding-bottom: 3px
+	padding-bottom: 3px;
+}
+.item__counter-like {
+	width: 26px;
+	padding-bottom: 3px;
+	opacity: 0.2;
+}
+.item__counter-like.active,
+.item__counter-like:hover {
+	opacity: 1
 }
 
 .item__counter-text {
