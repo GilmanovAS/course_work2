@@ -21,20 +21,36 @@ def change_tag_content(post):
     return post
 
 
-@blueprint_main.route('/', methods=['GET'])
-def main_page():
-    posts_all = DaoPosts(PATH_JSON_POSTS)
+def shorts_content_add_bookmark(posts_all):
     bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
     bookmarks = bookmarks.get_bookmarks_all()
     bookmarks_set = set()
     for bookmark_one in bookmarks:
         bookmarks_set.add(bookmark_one.get('post_id'))
-    logging.info("index.html")
-    posts_all = posts_all.get_posts_all()
     for post in posts_all:
         post['content'] = post['content'][0:LENGTH_CONTENT]
         post['bookmark'] = True if post['pk'] in bookmarks_set else False
-    return render_template('index.html', posts=posts_all, count_bookmarks=len(bookmarks_set))
+    return posts_all, len(bookmarks_set)
+
+
+def add_delete_bookmark(post_id):
+    bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
+    bookmarks_l = list(bookmarks.get_bookmarks_all())
+    for bookmark_one in bookmarks_l:
+        if int(post_id) == bookmark_one['post_id']:
+            bookmarks_l.remove(bookmark_one)
+            bookmarks.save_all(bookmarks_l)
+            return
+    bookmarks_l.append({'post_id': int(post_id)})
+    bookmarks.save_all(bookmarks_l)
+
+
+@blueprint_main.route('/', methods=['GET'])
+def main_page():
+    logging.info("index.html")
+    posts_all = DaoPosts(PATH_JSON_POSTS)
+    posts_all, count = shorts_content_add_bookmark(posts_all.get_posts_all())
+    return render_template('index.html', posts=posts_all, count_bookmarks=count)
 
 
 @blueprint_main.route('/posts/<int:post_id>')
@@ -53,7 +69,7 @@ def post_page(post_id):
 def posts_by_user_page(user_name):
     logging.info(f"/user-feed/{user_name}")
     posts_o = DaoPosts(PATH_JSON_POSTS)
-    posts_l = posts_o.get_posts_by_user(user_name)
+    posts_l, _ = shorts_content_add_bookmark(posts_o.get_posts_by_user(user_name))
     return render_template('user-feed.html', posts=posts_l)
 
 
@@ -62,6 +78,7 @@ def search_page(search_str):
     logging.info(f"/search/{search_str}")
     posts_o = DaoPosts(PATH_JSON_POSTS)
     posts_l, count = posts_o.search_for_posts(search_str)
+    posts_l, _ = shorts_content_add_bookmark(posts_l)
     return render_template('search.html', posts=posts_l, count=count)
 
 
@@ -71,6 +88,7 @@ def search_page_request():
     search_str = request.values.get('search')
     logging.info(f"/search/?search={search_str}")
     posts_l, count = posts_o.search_for_posts(search_str)
+    posts_l, _ = shorts_content_add_bookmark(posts_l)
     return render_template('search.html', posts=posts_l, count=count)
 
 
@@ -79,8 +97,7 @@ def tag_page(tag_name):
     logging.info(f"/tag/{tag_name}")
     posts_o = DaoPosts(PATH_JSON_POSTS)
     posts_l, count = posts_o.search_for_posts(f'#{tag_name}')
-    for post in posts_l:
-        post['content'] = post['content'][0:LENGTH_CONTENT]
+    posts_l, _ = shorts_content_add_bookmark(posts_l)
     return render_template('tag.html', posts=posts_l, tag_name=tag_name)
 
 
@@ -90,24 +107,25 @@ def bookmarks_page():
     post = DaoPosts(PATH_JSON_POSTS)
     bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
     bookmarks = bookmarks.get_bookmarks_all()
-    bookmarks_set = set()
+    posts_all = []
     for bookmark_one in bookmarks:
         pk = bookmark_one.get('post_id')
-        bookmarks_set.add(pk)
-        post.get_post_by_pk(pk)
-    posts_all = posts_all.get_posts_all()
-    for post in posts_all:
-        post['content'] = post['content'][0:LENGTH_CONTENT]
-        post['bookmark'] = True if post['pk'] in bookmarks_set else False
-    return render_template('bookmarks.html', posts=posts_all, count_bookmarks=len(bookmarks_set))
+        posts_temp = post.get_post_by_pk(pk)
+        posts_temp['content'] = posts_temp['content'][0:LENGTH_CONTENT]
+        posts_temp['bookmark'] = True
+        posts_all.append(posts_temp)
+    return render_template('bookmarks.html', posts=posts_all)
 
 
-@blueprint_main.route('/bookmarks/add/<post_id>')
+@blueprint_main.route('/bookmarks/add/<int:post_id>')
 def bookmarks_add_page(post_id):
     logging.info(f'bookmarks_add_page {post_id}')
+    add_delete_bookmark(post_id)
     return redirect('/', code=302)
 
 
-@blueprint_main.route('/bookmarks/delete/<post_id>')
+@blueprint_main.route('/bookmarks/delete/<int:post_id>')
 def bookmarks_delete_page(post_id):
+    logging.info(f'bookmarks_delete_page {post_id}')
+    add_delete_bookmark(post_id)
     return redirect('/', code=302)

@@ -74,7 +74,7 @@ class DaoBookmarks:
     def save_all(self, data):
         """save all comments"""
         with open(self.path, 'w', encoding='UTF-8') as fp:
-            return json.dump(data, fp)
+            return json.dump(data, fp, indent=4)
 
     def get_bookmarks_by_post_id(self, post_id):
         # get_comments_by„post_id(post_id) - возвращает комментарии определенного поста.
