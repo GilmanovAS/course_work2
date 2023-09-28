@@ -71,6 +71,11 @@ class DaoBookmarks:
         with open(self.path, 'r', encoding='UTF-8') as fp:
             return json.load(fp)
 
+    def save_all(self, data):
+        """save all comments"""
+        with open(self.path, 'w', encoding='UTF-8') as fp:
+            return json.dump(data, fp)
+
     def get_bookmarks_by_post_id(self, post_id):
         # get_comments_by„post_id(post_id) - возвращает комментарии определенного поста.
         # Функция должна вызывать ошибку ValueError если такого поста нет и пустой список, если у

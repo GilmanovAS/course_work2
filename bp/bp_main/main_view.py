@@ -26,13 +26,15 @@ def main_page():
     posts_all = DaoPosts(PATH_JSON_POSTS)
     bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
     bookmarks = bookmarks.get_bookmarks_all()
+    bookmarks_set = set()
+    for bookmark_one in bookmarks:
+        bookmarks_set.add(bookmark_one.get('post_id'))
     logging.info("index.html")
     posts_all = posts_all.get_posts_all()
-    print(bookmarks)
     for post in posts_all:
         post['content'] = post['content'][0:LENGTH_CONTENT]
-        # post['bookmarks'] = bookmarks['pk']
-    return render_template('index.html', posts=posts_all )
+        post['bookmark'] = True if post['pk'] in bookmarks_set else False
+    return render_template('index.html', posts=posts_all, count_bookmarks=len(bookmarks_set))
 
 
 @blueprint_main.route('/posts/<int:post_id>')
@@ -84,7 +86,20 @@ def tag_page(tag_name):
 
 @blueprint_main.route('/bookmarks/')
 def bookmarks_page():
-    return render_template('bookmarks.html')
+    logging.info("/bookmarks/")
+    post = DaoPosts(PATH_JSON_POSTS)
+    bookmarks = DaoBookmarks(PATH_JSON_BOOKMARKS)
+    bookmarks = bookmarks.get_bookmarks_all()
+    bookmarks_set = set()
+    for bookmark_one in bookmarks:
+        pk = bookmark_one.get('post_id')
+        bookmarks_set.add(pk)
+        post.get_post_by_pk(pk)
+    posts_all = posts_all.get_posts_all()
+    for post in posts_all:
+        post['content'] = post['content'][0:LENGTH_CONTENT]
+        post['bookmark'] = True if post['pk'] in bookmarks_set else False
+    return render_template('bookmarks.html', posts=posts_all, count_bookmarks=len(bookmarks_set))
 
 
 @blueprint_main.route('/bookmarks/add/<post_id>')
